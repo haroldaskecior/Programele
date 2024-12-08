@@ -1,5 +1,5 @@
- Install Streamlit (to be run in the terminal or notebook cell supporting shell commands)
- !pip install streamlit
+Install Streamlit
+!pip install streamlit
 
 
 import streamlit as st
