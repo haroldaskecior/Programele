@@ -1,7 +1,3 @@
-Install Streamlit
-!pip install streamlit
-
-
 import streamlit as st
 import joblib
 import numpy as np
