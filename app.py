@@ -6,7 +6,7 @@ import numpy as np
 model = joblib.load('/content/tuned_gradient_boosting_model.pkl')
 
 # Title of the application
-st.title("automobilio kainos p redikcija ")
+st.title("automobilio kainos predikcija ")
 
 # Instructions
 st.write("""
