@@ -74,7 +74,7 @@ numeric_features = {
 
 for feature, display_name in numeric_features.items():
     if feature in df.columns:
-        if st.checkbox(f"Customize {display_name}"):
+        if st.checkbox(f"{{display_name}}"):
             selected_value = st.selectbox(f"Pasirinkti {display_name}", sorted(df[feature].unique()))
         else:
             # Use the median value as the default
