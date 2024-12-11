@@ -52,7 +52,7 @@ encoded_model = encoders['model'].transform([selected_model])[0]
 input_values.append(encoded_model)
 
 # Step 3: Select City
-if st.checkbox(f" {categorical_features['City']}"):
+if st.checkbox(f"{{categorical_features['City']}}"):
     selected_city = st.selectbox(categorical_features['City'], encoders['City'].classes_)
     encoded_city = encoders['City'].transform([selected_city])[0]
 else:
@@ -64,7 +64,7 @@ else:
 input_values.append(encoded_city)
 
 # Step 4: Select Engine Type
-if st.checkbox(f" {categorical_features['Engine Type']}"):
+if st.checkbox(f"{{categorical_features['Engine Type']}}"):
     selected_engine = st.selectbox(categorical_features['Engine Type'], encoders['Engine Type'].classes_)
     encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
 else:
