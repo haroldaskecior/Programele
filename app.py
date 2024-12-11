@@ -55,21 +55,21 @@ input_values.append(encoded_engine)
 
 # Step 5: Select Other Features
 numeric_features = {
-    'Wheel Size': 'Wheel Size',
-    'modelYear': 'Model Year',
-    'Width': 'Width (mm)',
-    'Max Power': 'Max Power (hp)',
-    'Length': 'Length (mm)',
-    'Wheel Base': 'Wheel Base (mm)',
-    'km': 'Mileage (km)',
-    'Acceleration': 'Acceleration (0-100 km/h)',
-    'Kerb Weight': 'Kerb Weight (kg)',
-    'Torque': 'Torque (Nm)',
-    'Cargo Volumn': 'Cargo Volume (L)',
-    'Mileage': 'Fuel Efficiency (km/l)',
-    'Height': 'Height (mm)',
-    'Gear Box': 'Gear Box',
-    'Gross Weight': 'Gross Weight (kg)'
+    'Wheel Size': 'Ratu dydis',
+    'modelYear': 'Pagaminimo metai',
+    'Width': 'Plotis (mm)',
+    'Max Power': 'Galia (hp)',
+    'Length': 'Ilgis (mm)',
+    'Wheel Base': 'Ratu bazė (mm)',
+    'km': 'Kilometražas (km)',
+    'Acceleration': 'Pagreitėjimas (0-100 km/h)',
+    'Kerb Weight': 'Gamyklinis automobilio svoris (kg)',
+    'Torque': 'Sukimo momentas (Nm)',
+    'Cargo Volumn': 'Talpa (L)',
+    'Mileage': 'Kuro sanaudos (km/l)',
+    'Height': 'Aukstis (mm)',
+    'Gear Box': 'Pavaru deze',
+    'Gross Weight': 'Maksimalus svoris (kg)'
 }
 
 for feature, display_name in numeric_features.items():
