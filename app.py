@@ -16,13 +16,13 @@ df = pd.read_csv(data_path)
 # Initialize label encoders for all categorical features
 encoders = {}
 categorical_features = {
-    'oem': 'Atomobilio markė',
-    'model': 'Automobilio modelis',
-    'City': 'AUtomobilio lokacija',
-    'Engine Type': 'Variklio tipas',
-    'Color': 'Automobilio Spalva',
-    'Tyre Type': 'Padangu tipas',
-    'Transmission': 'Transmisijos tipas'
+    'oem': 'OEM (Make)',
+    'model': 'Car Model',
+    'City': 'City of Purchase',
+    'Engine Type': 'Engine Type',
+    'Color': 'Car Color',
+    'Tyre Type': 'Tyre Type',
+    'Transmission': 'Transmission Type'
 }
 
 # Fit encoders on the dataset
@@ -34,7 +34,7 @@ for feature, display_name in categorical_features.items():
         encoders[feature] = encoder
 
 # Title of the application
-st.title("AUTOMOBILIŲ KAINOS PROGNOZAVIMO ĮRANKIS NAUDOJANTIS MAŠININĮ MOKYMĄ")
+st.title("Car Price Prediction with Selected Features (₹ to € Conversion)")
 
 # Input Data Collection
 input_values = []
@@ -62,7 +62,7 @@ else:
 input_values.append(encoded_city)
 
 # Step 4: Select Engine Type
-if st.checkbox(f"{categorical_features['Engine Type']}"):
+if st.checkbox(categorical_features['Engine Type']):
     selected_engine = st.selectbox(categorical_features['Engine Type'], encoders['Engine Type'].classes_)
     encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
 else:
@@ -73,27 +73,27 @@ input_values.append(encoded_engine)
 
 # Step 5: Select Other Features
 numeric_features = {
-    'Wheel Size': 'Ratų dydis',
-    'modelYear': 'Pagaminimo metai',
-    'Width': 'Plotis (mm)',
-    'Max Power': 'Automobilio galia (hp)',
-    'Length': 'Ilgis (mm)',
-    'Wheel Base': 'Ratų bazė (mm)',
-    'km': 'Kilometražas (km)',
-    'Acceleration': 'Akseleracija/pagreitėjimas (0-100 km/h)',
-    'Kerb Weight': 'Originalus automobilio svoris (kg)',
-    'Torque': 'Sukimo momentas (Nm)',
-    'Cargo Volumn': 'Automobilio talpa (L)',
-    'Mileage': 'Kuro sąnaudos (km/l)',
-    'Height': 'Aukštis (mm)',
-    'Gear Box': 'Pavarų dežė',
-    'Gross Weight': 'Maksimalus svoris (kg)'
+    'Wheel Size': 'Wheel Size',
+    'modelYear': 'Model Year',
+    'Width': 'Width (mm)',
+    'Max Power': 'Max Power (hp)',
+    'Length': 'Length (mm)',
+    'Wheel Base': 'Wheel Base (mm)',
+    'km': 'Mileage (km)',
+    'Acceleration': 'Acceleration (0-100 km/h)',
+    'Kerb Weight': 'Kerb Weight (kg)',
+    'Torque': 'Torque (Nm)',
+    'Cargo Volumn': 'Cargo Volume (L)',
+    'Mileage': 'Fuel Efficiency (km/l)',
+    'Height': 'Height (mm)',
+    'Gear Box': 'Gear Box',
+    'Gross Weight': 'Gross Weight (kg)'
 }
 
 for feature, display_name in numeric_features.items():
     if feature in df.columns:
-        if st.checkbox(f"{display_name}"):
-            selected_value = st.selectbox(f"{display_name}", sorted(df[feature].unique()))
+        if st.checkbox(f"Customize {display_name}"):
+            selected_value = st.selectbox(f"Select {display_name}", sorted(df[feature].unique()))
         else:
             # Use the median value as the default
             selected_value = df[feature].median()
@@ -136,4 +136,3 @@ if st.button('Predict Price'):
 
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
-
