@@ -58,6 +58,8 @@ if st.checkbox(f"Customize {categorical_features['City']}"):
 else:
     # Use the most frequent value as the default
     default_city = df['City'].mode()[0]
+    if default_city not in encoders['City'].classes_:
+        default_city = encoders['City'].classes_[0]  # Fallback to the first class if unseen
     encoded_city = encoders['City'].transform([default_city])[0]
 input_values.append(encoded_city)
 
