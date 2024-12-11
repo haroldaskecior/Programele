@@ -54,15 +54,34 @@ encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
 input_values.append(encoded_engine)
 
 # Step 5: Select Other Features
-numeric_features = ['Ratų dydis', 'Pagaminimo metai', 'Plotis', 'Automobilio galia', 'Ilgis', 'Wheel Base', 'Kilometražas',
-                    'Automobilio pagreitėjimas 1-100km/h', 'Automobilio svoris be keleivių', 'Sukimo momentas', 'Automobilio talpa', 'Kuro sąnaudos', 'Aukštis', 'Pavarų dežė', 'Max svoris']
+numeric_features = {
+    'Wheel Size': 'Wheel Size',
+    'modelYear': 'Model Year',
+    'Width': 'Width (mm)',
+    'Max Power': 'Max Power (hp)',
+    'Length': 'Length (mm)',
+    'Wheel Base': 'Wheel Base (mm)',
+    'km': 'Mileage (km)',
+    'Acceleration': 'Acceleration (0-100 km/h)',
+    'Kerb Weight': 'Kerb Weight (kg)',
+    'Torque': 'Torque (Nm)',
+    'Cargo Volumn': 'Cargo Volume (L)',
+    'Mileage': 'Fuel Efficiency (km/l)',
+    'Height': 'Height (mm)',
+    'Gear Box': 'Gear Box',
+    'Gross Weight': 'Gross Weight (kg)'
+}
 
-for feature in numeric_features:
+for feature, display_name in numeric_features.items():
     if feature in df.columns:
-        selected_value = st.selectbox(f'Select {feature}', sorted(df[feature].unique()))
+        if st.checkbox(f"Customize {display_name}"):
+            selected_value = st.selectbox(f"Select {display_name}", sorted(df[feature].unique()))
+        else:
+            # Use the median value as the default
+            selected_value = df[feature].median()
         input_values.append(selected_value)
     else:
-        st.warning(f"{feature} not found in dataset. Defaulting to 0.")
+        st.warning(f"{display_name} not found in dataset. Defaulting to 0.")
         input_values.append(0)
 
 # Handle Categorical Features with Cleaned Dropdowns
