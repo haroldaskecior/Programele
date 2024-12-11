@@ -15,10 +15,18 @@ df = pd.read_csv(data_path)
 
 # Initialize label encoders for all categorical features
 encoders = {}
-categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type', 'Transmission']
+categorical_features = {
+    'oem': 'Atomobilio markė',
+    'model': 'Automobilio modelis',
+    'City': 'AUtomobilio lokacija',
+    'Engine Type': 'Variklio tipas',
+    'Color': 'Automobilio Spalva',
+    'Tyre Type': 'Padangu tipas',
+    'Transmission': 'Transmisijos tipas'
+}
 
 # Fit encoders on the dataset
-for feature in categorical_features:
+for feature, display_name in categorical_features.items():
     if feature in df.columns:
         encoder = LabelEncoder()
         df[feature] = df[feature].astype(str).str.strip()  # Standardize
@@ -32,48 +40,70 @@ st.title("AUTOMOBILIŲ KAINOS PROGNOZAVIMO ĮRANKIS NAUDOJANTIS MAŠININĮ MOKYM
 input_values = []
 
 # Step 1: Select OEM (Make)
-selected_oem = st.selectbox('Automobilio markė', encoders['oem'].classes_)
+selected_oem = st.selectbox(categorical_features['oem'], encoders['oem'].classes_)
 encoded_oem = encoders['oem'].transform([selected_oem])[0]
 input_values.append(encoded_oem)
 
 # Step 2: Select Model (Filtered by OEM)
 filtered_models = df[df['oem'] == encoded_oem]
 model_classes = encoders['model'].inverse_transform(filtered_models['model'].unique())
-selected_model = st.selectbox('Pasirinkti automobilio modelį', model_classes)
+selected_model = st.selectbox(categorical_features['model'], model_classes)
 encoded_model = encoders['model'].transform([selected_model])[0]
 input_values.append(encoded_model)
 
 # Step 3: Select City
-selected_city = st.selectbox('Miestas iš kurio būtų automobilis', encoders['City'].classes_)
-encoded_city = encoders['City'].transform([selected_city])[0]
+if st.checkbox(f"Customize {categorical_features['City']}"):
+    selected_city = st.selectbox(categorical_features['City'], encoders['City'].classes_)
+    encoded_city = encoders['City'].transform([selected_city])[0]
+else:
+    # Use the most frequent value as the default
+    default_city = df['City'].mode()[0]
+    encoded_city = encoders['City'].transform([default_city])[0]
 input_values.append(encoded_city)
 
 # Step 4: Select Engine Type
-selected_engine = st.selectbox('Variklio tipas', encoders['Engine Type'].classes_)
-encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
+if st.checkbox(f"Customize {categorical_features['Engine Type']}"):
+    selected_engine = st.selectbox(categorical_features['Engine Type'], encoders['Engine Type'].classes_)
+    encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
+else:
+    # Use the most frequent value as the default
+    default_engine = df['Engine Type'].mode()[0]
+    encoded_engine = encoders['Engine Type'].transform([default_engine])[0]
 input_values.append(encoded_engine)
 
 # Step 5: Select Other Features
-numeric_features = ['Ratų dydis', 'Pagaminimo metai', 'Plotis', 'Automobilio galia', 'Ilgis', 'Wheel Base', 'Kilometražas',
-                    'Automobilio pagreitėjimas 1-100km/h', 'Automobilio svoris be keleivių', 'Sukimo momentas', 'Automobilio talpa', 'Kuro sąnaudos', 'Aukštis', 'Pavarų dežė', 'Max svoris']
+numeric_features = {
+    'Wheel Size': 'Ratų dydis',
+    'modelYear': 'Pagaminimo metai',
+    'Width': 'Plotis (mm)',
+    'Max Power': 'Automobilio galia (hp)',
+    'Length': 'Ilgis (mm)',
+    'Wheel Base': 'Ratų bazė (mm)',
+    'km': 'Kilometražas (km)',
+    'Acceleration': 'Akseleracija/pagreitėjimas (0-100 km/h)',
+    'Kerb Weight': 'Originalus automobilio svoris (kg)',
+    'Torque': 'Sukimo momentas (Nm)',
+    'Cargo Volumn': 'Automobilio talpa (L)',
+    'Mileage': 'Kuro sąnaudos (km/l)',
+    'Height': 'Aukštis (mm)',
+    'Gear Box': 'Pavarų dežė',
+    'Gross Weight': 'Maksimalus svoris (kg)'
+}
 
-for feature in numeric_features:
+for feature, display_name in numeric_features.items():
     if feature in df.columns:
-        selected_value = st.selectbox(f'Select {feature}', sorted(df[feature].unique()))
+        if st.checkbox(f"Customize {display_name}"):
+            selected_value = st.selectbox(f"Select {display_name}", sorted(df[feature].unique()))
+        else:
+            # Use the median value as the default
+            selected_value = df[feature].median()
         input_values.append(selected_value)
     else:
         st.warning(f"{feature} not found in dataset. Defaulting to 0.")
         input_values.append(0)
 
-# Handle Categorical Features with Cleaned Dropdowns
-if 'Transmission' in df.columns:
-    transmission_classes = encoders['Transmission'].classes_
-    selected_transmission = st.selectbox('Select Transmission', transmission_classes)
-    encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
-    input_values.append(encoded_transmission)
-
 # Add placeholders for excluded features to match model input size
-excluded_features_defaults = [0] * 10  # Placeholder for Insurance Validity, Alloy Wheel Size, Turning Radius, Front Tread, Rear Tread, Displacement, and other excluded features
+excluded_features_defaults = [0] * 10  # Placeholder for excluded features
 input_values.extend(excluded_features_defaults)
 
 # Convert input values to numpy array
@@ -106,3 +136,4 @@ if st.button('Predict Price'):
 
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
+
