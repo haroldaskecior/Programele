@@ -52,19 +52,17 @@ encoded_model = encoders['model'].transform([selected_model])[0]
 input_values.append(encoded_model)
 
 # Step 3: Select City
-if st.checkbox(f"{display_name}"):
+if st.checkbox(f"{categorical_features['City']}"):
     selected_city = st.selectbox(categorical_features['City'], encoders['City'].classes_)
     encoded_city = encoders['City'].transform([selected_city])[0]
 else:
     # Use the most frequent value as the default
     default_city = df['City'].mode()[0]
-    if default_city not in encoders['City'].classes_:
-        default_city = encoders['City'].classes_[0]  # Fallback to the first class if unseen
     encoded_city = encoders['City'].transform([default_city])[0]
 input_values.append(encoded_city)
 
 # Step 4: Select Engine Type
-if st.checkbox(f"{display_name}"):
+if st.checkbox(f"{categorical_features['Engine Type']}"):
     selected_engine = st.selectbox(categorical_features['Engine Type'], encoders['Engine Type'].classes_)
     encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
 else:
