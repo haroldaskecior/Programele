@@ -52,7 +52,7 @@ encoded_model = encoders['model'].transform([selected_model])[0]
 input_values.append(encoded_model)
 
 # Step 3: Select City
-if st.checkbox(f"{categorical_features['City']}"):
+if st.checkbox(categorical_features['City']):
     selected_city = st.selectbox(categorical_features['City'], encoders['City'].classes_)
     encoded_city = encoders['City'].transform([selected_city])[0]
 else:
