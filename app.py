@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
+import requests
 from sklearn.preprocessing import LabelEncoder
 
 # Load the trained Gradient Boosting model
@@ -78,13 +79,30 @@ input_values.extend(excluded_features_defaults)
 # Convert input values to numpy array
 input_data = np.array([input_values])
 
+# Function to fetch exchange rate
+def get_exchange_rate(from_currency="INR", to_currency="EUR"):
+    api_url = "https://v6.exchangerate-api.com/v6/c5186f953a752d1b79ef7e7f/latest/INR"
+    response = requests.get(api_url)
+    if response.status_code == 200:
+        rates = response.json().get("conversion_rates", {})
+        return rates.get(to_currency, None)
+    else:
+        st.error("Failed to fetch exchange rates.")
+        return None
+
 # Predict button
 if st.button('Predict Price'):
     try:
         # Make the prediction
         predicted_price = model.predict(input_data)[0]
+        
+        # Fetch exchange rate and convert to EUR
+        exchange_rate = get_exchange_rate()
+        if exchange_rate:
+            converted_price = predicted_price * exchange_rate
+            st.success(f"The estimated car price is: ₹{predicted_price:,.2f} (≈ €{converted_price:,.2f})")
+        else:
+            st.success(f"The estimated car price is: ₹{predicted_price:,.2f}")
 
-        # Display the result
-        st.success(f"The estimated car price is: ₹{predicted_price:,.2f}")
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
