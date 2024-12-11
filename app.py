@@ -26,36 +26,36 @@ for feature in categorical_features:
         encoders[feature] = encoder
 
 # Title of the application
-st.title("Car Price Prediction with Selected Features")
+st.title("AUTOMOBILIŲ KAINOS PROGNOZAVIMO ĮRANKIS NAUDOJANTIS MAŠININĮ MOKYMĄ")
 
 # Input Data Collection
 input_values = []
 
 # Step 1: Select OEM (Make)
-selected_oem = st.selectbox('Select Car OEM (Make)', encoders['oem'].classes_)
+selected_oem = st.selectbox('Automobilio markė', encoders['oem'].classes_)
 encoded_oem = encoders['oem'].transform([selected_oem])[0]
 input_values.append(encoded_oem)
 
 # Step 2: Select Model (Filtered by OEM)
 filtered_models = df[df['oem'] == encoded_oem]
 model_classes = encoders['model'].inverse_transform(filtered_models['model'].unique())
-selected_model = st.selectbox('Select Car Model', model_classes)
+selected_model = st.selectbox('Pasirinkti automobilio modelį', model_classes)
 encoded_model = encoders['model'].transform([selected_model])[0]
 input_values.append(encoded_model)
 
 # Step 3: Select City
-selected_city = st.selectbox('Select City', encoders['City'].classes_)
+selected_city = st.selectbox('Miestas iš kurio būtų automobilis', encoders['City'].classes_)
 encoded_city = encoders['City'].transform([selected_city])[0]
 input_values.append(encoded_city)
 
 # Step 4: Select Engine Type
-selected_engine = st.selectbox('Select Engine Type', encoders['Engine Type'].classes_)
+selected_engine = st.selectbox('Variklio tipas', encoders['Engine Type'].classes_)
 encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
 input_values.append(encoded_engine)
 
 # Step 5: Select Other Features
-numeric_features = ['Wheel Size', 'modelYear', 'Width', 'Max Power', 'Length', 'Wheel Base', 'km',
-                    'Acceleration', 'Kerb Weight', 'Torque', 'Cargo Volumn', 'Mileage', 'Height', 'Gear Box', 'Gross Weight']
+numeric_features = ['Ratų dydis', 'Pagaminimo metai', 'Plotis', 'Automobilio galia', 'Ilgis', 'Wheel Base', 'Kilometražas',
+                    'Automobilio pagreitėjimas 1-100km/h', 'Automobilio svoris be keleivių', 'Sukimo momentas', 'Automobilio talpa', 'Kuro sąnaudos', 'Aukštis', 'Pavarų dežė', 'Max svoris']
 
 for feature in numeric_features:
     if feature in df.columns:
