@@ -15,7 +15,7 @@ df = pd.read_csv(data_path)
 
 # Initialize label encoders for all categorical features
 encoders = {}
-categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type', 'Transmission]
+categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type', 'Transmission']
 
 # Fit encoders on the dataset
 for feature in categorical_features:
