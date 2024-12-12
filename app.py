@@ -15,7 +15,7 @@ df = pd.read_csv(data_path)
 
 # Initialize label encoders for all categorical features
 encoders = {}
-categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type', 'Transmission']
+categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type']
 
 # Fit encoders on the dataset
 for feature in categorical_features:
@@ -83,13 +83,6 @@ for feature, display_name in numeric_features.items():
     else:
         st.warning(f"{display_name} not found in dataset. Defaulting to 0.")
         input_values.append(0)
-
-# Handle Categorical Features with Cleaned Dropdowns
-if 'Transmission' in df.columns:
-    transmission_classes = encoders['Transmission'].classes_
-    selected_transmission = st.selectbox('Select Transmission', transmission_classes)
-    encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
-    input_values.append(encoded_transmission)
 
 # Add placeholders for excluded features to match model input size
 excluded_features_defaults = [0] * 10  # Placeholder for Insurance Validity, Alloy Wheel Size, Turning Radius, Front Tread, Rear Tread, Displacement, and other excluded features
