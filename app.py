@@ -15,7 +15,7 @@ df = pd.read_csv(data_path)
 
 # Initialize label encoders for all categorical features
 encoders = {}
-categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type']
+categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type', 'Transmission]
 
 # Fit encoders on the dataset
 for feature in categorical_features:
@@ -51,7 +51,10 @@ input_values.append(encoded_city)
 # Step 4: Select Engine Type
 selected_engine = st.selectbox('Variklio tipas', encoders['Engine Type'].classes_)
 encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
-input_values.append(encoded_engine)
+
+input_values.append(encoded_transmission)selected_transmission = st.selectbox('Pavarų deze', encoders['Transmission'].classes_)
+encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
+input_values.append(encoded_transmission)
 
 # Step 5: Select Other Features
 numeric_features = {
@@ -68,7 +71,6 @@ numeric_features = {
     'Cargo Volumn': 'Talpa (L)',
     'Mileage': 'Kuro sanaudos (km/l)',
     'Height': 'Aukstis (mm)',
-    'Transmission': 'Pavaru deze',
     'Gross Weight': 'Maksimalus svoris (kg)'
 }
 
