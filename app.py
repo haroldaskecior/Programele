@@ -106,7 +106,7 @@ def get_exchange_rate(from_currency="INR", to_currency="EUR"):
         return None
 
 # Predict button
-if st.button('Predict Price'):
+if st.button('Kainos prognozė'):
     try:
         # Make the prediction
         predicted_price = model.predict(input_data)[0]
@@ -115,9 +115,9 @@ if st.button('Predict Price'):
         exchange_rate = get_exchange_rate()
         if exchange_rate:
             converted_price = predicted_price * exchange_rate
-            st.success(f"The estimated car price is: ₹{predicted_price:,.2f} (≈ €{converted_price:,.2f})")
+            st.success(f"Numanoma kaina yra: ₹{predicted_price:,.2f} (≈ €{converted_price:,.2f})")
         else:
-            st.success(f"The estimated car price is: ₹{predicted_price:,.2f}")
+            st.success(f"Numanoma kaina yra: ₹{predicted_price:,.2f}")
 
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
