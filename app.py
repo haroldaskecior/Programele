@@ -53,6 +53,10 @@ selected_engine = st.selectbox('Variklio tipas', encoders['Engine Type'].classes
 encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
 input_values.append(encoded_engine)
 
+selected_transmission = st.selectbox('Pavarų dėžė', encoders['Transmission'].classes_)
+encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
+input_values.append(encoded_transmission)
+
 # Step 5: Select Other Features
 numeric_features = {
     'Wheel Size': 'Ratu dydis',
@@ -83,14 +87,8 @@ for feature, display_name in numeric_features.items():
         st.warning(f"{display_name} not found in dataset. Defaulting to 0.")
         input_values.append(0)
 
-# Handle "Transmission" dropdown
-if 'Transmission' in df.columns:
-    selected_transmission = st.selectbox('Pavarų dėžė', encoders['Transmission'].classes_)
-    encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
-    input_values.append(encoded_transmission)
-
 # Add placeholders for excluded features to match model input size
-excluded_features_defaults = [0] * 10  # Placeholder for Insurance Validity, Alloy Wheel Size, Turning Radius, Front Tread, Rear Tread, Displacement, and other excluded features
+excluded_features_defaults = [0] * 11  # Placeholder for Insurance Validity, Alloy Wheel Size, Turning Radius, Front Tread, Rear Tread, Displacement, and other excluded features
 input_values.extend(excluded_features_defaults)
 
 # Convert input values to numpy array
