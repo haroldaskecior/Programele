@@ -52,9 +52,10 @@ input_values.append(encoded_city)
 selected_engine = st.selectbox('Variklio tipas', encoders['Engine Type'].classes_)
 encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
 
-input_values.append(encoded_transmission)selected_transmission = st.selectbox('Pavarų deze', encoders['Transmission'].classes_)
-encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
-input_values.append(encoded_transmission)
+if 'Transmission' in df.columns:
+    selected_transmission = st.selectbox('Pavarų dėžė', encoders['Transmission'].classes_)
+    encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
+    input_values.append(encoded_transmission)
 
 # Step 5: Select Other Features
 numeric_features = {
