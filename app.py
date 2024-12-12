@@ -69,7 +69,8 @@ numeric_features = {
     'Mileage': 'Kuro sanaudos (km/l)',
     'Height': 'Aukstis (mm)',
     'Gear Box': 'Pavaru deze',
-    'Gross Weight': 'Maksimalus svoris (kg)'
+    'Gross Weight': 'Maksimalus svoris (kg)',
+    'Trnasmission': 'Pavaru deze'
 }
 
 for feature, display_name in numeric_features.items():
