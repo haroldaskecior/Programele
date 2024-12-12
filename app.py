@@ -68,9 +68,8 @@ numeric_features = {
     'Cargo Volumn': 'Talpa (L)',
     'Mileage': 'Kuro sanaudos (km/l)',
     'Height': 'Aukstis (mm)',
-    'Gear Box': 'Pavaru deze',
-    'Gross Weight': 'Maksimalus svoris (kg)',
-    'Trnasmission': 'Pavaru deze'
+    'Transmission': 'Pavaru deze',
+    'Gross Weight': 'Maksimalus svoris (kg)'
 }
 
 for feature, display_name in numeric_features.items():
