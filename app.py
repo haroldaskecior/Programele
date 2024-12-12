@@ -26,7 +26,7 @@ for feature in categorical_features:
         encoders[feature] = encoder
 
 # Title of the application
-st.title("AUTOMOBILIŲ KAINOS PROGNOZAVIMO ĮRANKIS NAUDOJANTIS MAŠININĮ MOKYMĄ")
+st.title("AUTOMOBILIŲ KAINOS PROGNOZAVIMO ĮRANKIS NAUDOJANTIS MAŠININĮ MOKYMĄ Haroldas K. PS1")
 
 # Input Data Collection
 input_values = []
