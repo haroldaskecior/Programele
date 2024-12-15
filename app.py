@@ -15,7 +15,7 @@ def load_model():
         return None
 
 model = load_model()
-data = pd.read_csv(r'.\data\df2.csv')
+data = pd.read_csv('data/df2.csv')
 
 # Encoding mappings (example; update based on training preprocessing)
 make_mapping = {value: idx for idx, value in enumerate(data['Make'].unique())}
