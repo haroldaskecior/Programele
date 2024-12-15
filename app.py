@@ -95,4 +95,4 @@ if st.button('Predict Price'):
         except Exception as e:
             st.error(f"Prediction failed: {e}")  # Klaidos pranešimas, jei prognozė nepavyksta
     else:
-        st.error("Model could not be loaded. Please check the model file.")  # Klaida, jei modelio nepavyksta įkelti
+        st.error("Model could not be loaded. Please check the model file.")  # Klaida, jei modelio nepavyksta įkelti modelio
