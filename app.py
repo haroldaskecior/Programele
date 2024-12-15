@@ -1,90 +1,98 @@
 import streamlit as st
 import pandas as pd
-import pickle
+import joblib
+import numpy as np
 
 # Load the model and data
 def load_model():
-    with open('.data/tuned_gradient_boosting_model.pkl', 'rb') as f:
-        return pickle.load(f)
+    try:
+        model = joblib.load(r'.\data\tuned_gradient_boosting_model.pkl')
+        if model is None:
+            raise ValueError("The loaded model is None.")
+        return model
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
 
 model = load_model()
-data = pd.read_csv('.data/df2.csv')
+data = pd.read_csv(r'.\data\df2.csv')
 
-# Field titles customization
-titles = {
-    'First registration': 'Year of Make',
-    'Engine Power KW': 'Engine Power (KW)',
-    'CO2 emisija, g/km': 'CO2 Emissions (g/km)',
-    'Fuel consuption out-of-city l/100 km': 'Fuel Consumption (Out of City)',
-    'Fuel consuption combined l/100 km': 'Fuel Consumption (Combined)',
-    'Fuel consuption Urban l/100 km': 'Fuel Consumption (Urban)',
-    'Engine size in Cm3': 'Engine Size (Cm3)',
-    'Battery capacity, kWh': 'Battery Capacity (kWh)',
-    'Electric range': 'Electric Range'
-}
+# Encoding mappings (example; update based on training preprocessing)
+make_mapping = {value: idx for idx, value in enumerate(data['Make'].unique())}
+model_mapping = {value: idx for idx, value in enumerate(data['Model'].unique())}
+body_type_mapping = {value: idx for idx, value in enumerate(data['Body type'].unique())}
+gearbox_mapping = {value: idx for idx, value in enumerate(data['Gearbox'].unique())}
+driven_wheels_mapping = {value: idx for idx, value in enumerate(data['Driven wheels'].unique())}
+registration_country_mapping = {value: idx for idx, value in enumerate(data['First registration country'].unique())}
+color_mapping = {value: idx for idx, value in enumerate(data['Color'].unique())}
+
+# Feature names for the model
+input_features = [
+    'First registration', 'Engine Power KW', 'Mileage', 'Model',
+    'CO2 emisija, g/km', 'Body type', 'Gearbox', 'Make',
+    'Driven wheels', 'First registration country', 'LED headlights',
+    'Number of seats', 'Fuel consuption out-of-city l/100 km',
+    'Fuel consuption Urban l/100 km', 'Color'
+]
 
 # Streamlit App
 st.title("Vehicle Price Prediction App")
-st.write("Predict vehicle prices based on various features.")
+st.write("Predict vehicle prices based on specific features.")
 
 # Dropdowns
 make = st.selectbox('Select Make', data['Make'].unique())
 filtered_models = data[data['Make'] == make]['Model'].unique()
 model_choice = st.selectbox('Select Model', filtered_models)
-year_of_make = st.selectbox(titles['First registration'], sorted(data['First registration'].unique()))
-color = st.selectbox('Color', data['Color'].unique())
+year_of_make = st.selectbox('First Registration Year', sorted(data['First registration'].unique()))
+body_type = st.selectbox('Body Type', data['Body type'].unique())
 gearbox = st.selectbox('Gearbox', data['Gearbox'].unique())
-fuel_type = st.selectbox('Fuel Type', data['Fuel type'].unique())
 driven_wheels = st.selectbox('Driven Wheels', data['Driven wheels'].unique())
+registration_country = st.selectbox('First Registration Country', data['First registration country'].unique())
+color = st.selectbox('Color', data['Color'].unique())
 number_of_seats = st.selectbox('Number of Seats', sorted(data['Number of seats'].unique()))
-damage = st.selectbox('Damage', data['Damage'].unique())
-euro_standard = st.selectbox('Euro Standard', data['Euro standard'].unique())
-pollution_tax = st.selectbox('Pollution Tax in Lithuania', data['Pollution tax in Lithuania'].unique())
-
-# Date Input
-mot_expiry = st.date_input('MOT Test Expiry')
 
 # Numerical Inputs
-engine_power = st.number_input(titles['Engine Power KW'], min_value=0)
-co2_emissions = st.number_input(titles['CO2 emisija, g/km'], min_value=0)
+engine_power = st.number_input('Engine Power (KW)', min_value=0)
+co2_emissions = st.number_input('CO2 Emissions (g/km)', min_value=0)
 mileage = st.number_input('Mileage', min_value=0)
-fuel_out_city = st.number_input(titles['Fuel consuption out-of-city l/100 km'], min_value=0.0)
-fuel_combined = st.number_input(titles['Fuel consuption combined l/100 km'], min_value=0.0)
-fuel_urban = st.number_input(titles['Fuel consuption Urban l/100 km'], min_value=0.0)
-engine_size = st.number_input(titles['Engine size in Cm3'], min_value=0)
+fuel_out_city = st.number_input('Fuel Consumption (Out of City, l/100 km)', min_value=0.0)
+fuel_urban = st.number_input('Fuel Consumption (Urban, l/100 km)', min_value=0.0)
 
-# Conditional Fields
-if "electricity" in fuel_type.lower():
-    battery_capacity = st.number_input(titles['Battery capacity, kWh'], min_value=0.0)
-    electric_range = st.number_input(titles['Electric range'], min_value=0.0)
-
-# Checkbox Inputs
-binary_features = [
-    'Rear view camera', '360 degree camera', 'Front view camera',
-    'Ventilated seats', 'Blind Spot Detection', 'Electrically adjustable steering wheel',
-    'Touch screen', 'Automated Parking', 'Electric seats with memory', 'Pneumatic suspension',
-    'Matrix headlights', 'Paddle shifters', 'HiFi audio system', 'Electric seats',
-    'Apple CarPlay / Android Auto', 'Sunroof', 'ESP', 'Traction control system',
-    'Reclining seats', 'Fog lights', 'Boot cover', 'Lane Departure Warning',
-    'Dynamic cornering lights', 'Soft close doors', 'LED headlights',
-    'Heated mirrors', 'Leather seats'
-]
-
-user_inputs = {}
-for feature in binary_features:
-    user_inputs[feature] = 1 if st.checkbox(feature) else 0
+# LED Headlights
+led_headlights = st.checkbox('LED Headlights')
 
 # Predict Button
 if st.button('Predict Price'):
-    # Prepare input data for prediction
-    input_data = [
-        year_of_make, engine_power, user_inputs['Rear view camera'], mileage,
-        number_of_seats, user_inputs['Battery capacity, kWh'] if "electricity" in fuel_type.lower() else 0,
-        co2_emissions, pollution_tax, make, driven_wheels, model_choice,
-        user_inputs['Electrically adjustable steering wheel'], gearbox, user_inputs['360 degree camera'],
-        user_inputs['Front view camera'], color, fuel_type, mot_expiry, damage,
-        fuel_out_city, fuel_combined, fuel_urban, engine_size
-    ] + [user_inputs[feature] for feature in binary_features]
+    if model is not None:
+        try:
+            # Encode categorical fields
+            encoded_make = make_mapping.get(make, -1)
+            encoded_model = model_mapping.get(model_choice, -1)
+            encoded_body_type = body_type_mapping.get(body_type, -1)
+            encoded_gearbox = gearbox_mapping.get(gearbox, -1)
+            encoded_driven_wheels = driven_wheels_mapping.get(driven_wheels, -1)
+            encoded_registration_country = registration_country_mapping.get(registration_country, -1)
+            encoded_color = color_mapping.get(color, -1)
 
-    prediction = model.predict([input_data])[0]
-    st.success(f"The predicted price of the vehicle is €{prediction:.2f}")
+            # Prepare input data with correct feature names
+            input_data = pd.DataFrame([[
+                year_of_make, engine_power, mileage, encoded_model, co2_emissions,
+                encoded_body_type, encoded_gearbox, encoded_make, encoded_driven_wheels,
+                encoded_registration_country, int(led_headlights), number_of_seats,
+                fuel_out_city, fuel_urban, encoded_color
+            ]], columns=input_features)
+
+            # Perform prediction
+            prediction = model.predict(input_data)[0]
+            st.success(f"The predicted price of the vehicle is €{prediction:.2f}")
+
+                        # Find top 3 most correlated URLs
+            data['price_diff'] = np.abs(data['Price'] - prediction)
+            correlated_ads = data.nsmallest(3, 'price_diff')[['URL', 'Price']]
+            st.write("Top 3 similar ads:")
+            st.table(correlated_ads)
+
+        except Exception as e:
+            st.error(f"Prediction failed: {e}")
+    else:
+        st.error("Model could not be loaded. Please check the model file.")
