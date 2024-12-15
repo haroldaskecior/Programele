@@ -1,123 +1,90 @@
 import streamlit as st
-import joblib
-import numpy as np
 import pandas as pd
-import requests
-from sklearn.preprocessing import LabelEncoder
+import pickle
 
-# Load the trained Gradient Boosting model
-model_path = './data/tuned_gradient_boosting_model.pkl'
-model = joblib.load(model_path)
+# Load the model and data
+def load_model():
+    with open('.data/tuned_gradient_boosting_model.pkl', 'rb') as f:
+        return pickle.load(f)
 
-# Load the dataset to populate dropdowns
-data_path = './data/df2.csv'
-df = pd.read_csv(data_path)
+model = load_model()
+data = pd.read_csv('.data/df2.csv')
 
-# Initialize label encoders for all categorical features
-encoders = {}
-categorical_features = ['oem', 'model', 'City', 'Engine Type', 'Color', 'Tyre Type', 'Transmission']
-
-# Fit encoders on the dataset
-for feature in categorical_features:
-    if feature in df.columns:
-        encoder = LabelEncoder()
-        df[feature] = df[feature].astype(str).str.strip()  # Standardize
-        df[feature] = encoder.fit_transform(df[feature])
-        encoders[feature] = encoder
-
-# Title of the application
-st.title("AUTOMOBILIŲ KAINOS PROGNOZAVIMO ĮRANKIS NAUDOJANTIS MAŠININĮ MOKYMĄ Haroldas K. PS1")
-
-# Input Data Collection
-input_values = []
-
-# Step 1: Select OEM (Make)
-selected_oem = st.selectbox('Automobilio markė', encoders['oem'].classes_)
-encoded_oem = encoders['oem'].transform([selected_oem])[0]
-input_values.append(encoded_oem)
-
-# Step 2: Select Model (Filtered by OEM)
-filtered_models = df[df['oem'] == encoded_oem]
-model_classes = encoders['model'].inverse_transform(filtered_models['model'].unique())
-selected_model = st.selectbox('Pasirinkti automobilio modelį', model_classes)
-encoded_model = encoders['model'].transform([selected_model])[0]
-input_values.append(encoded_model)
-
-# Step 3: Select City
-selected_city = st.selectbox('Miestas iš kurio būtų automobilis', encoders['City'].classes_)
-encoded_city = encoders['City'].transform([selected_city])[0]
-input_values.append(encoded_city)
-
-# Step 4: Select Engine Type
-selected_engine = st.selectbox('Variklio tipas', encoders['Engine Type'].classes_)
-encoded_engine = encoders['Engine Type'].transform([selected_engine])[0]
-input_values.append(encoded_engine)
-
-selected_transmission = st.selectbox('Pavarų dėžė', encoders['Transmission'].classes_)
-encoded_transmission = encoders['Transmission'].transform([selected_transmission])[0]
-input_values.append(encoded_transmission)
-
-# Step 5: Select Other Features
-numeric_features = {
-    'Wheel Size': 'Ratu dydis',
-    'modelYear': 'Pagaminimo metai',
-    'Width': 'Plotis (mm)',
-    'Max Power': 'Galia (hp)',
-    'Length': 'Ilgis (mm)',
-    'Wheel Base': 'Ratu bazė (mm)',
-    'km': 'Kilometražas (km)',
-    'Acceleration': 'Pagreitėjimas (0-100 km/h)',
-    'Kerb Weight': 'Gamyklinis automobilio svoris (kg)',
-    'Torque': 'Sukimo momentas (Nm)',
-    'Cargo Volumn': 'Talpa (L)',
-    'Mileage': 'Kuro sanaudos (km/l)',
-    'Height': 'Aukstis (mm)',
-    'Gross Weight': 'Maksimalus svoris (kg)'
+# Field titles customization
+titles = {
+    'First registration': 'Year of Make',
+    'Engine Power KW': 'Engine Power (KW)',
+    'CO2 emisija, g/km': 'CO2 Emissions (g/km)',
+    'Fuel consuption out-of-city l/100 km': 'Fuel Consumption (Out of City)',
+    'Fuel consuption combined l/100 km': 'Fuel Consumption (Combined)',
+    'Fuel consuption Urban l/100 km': 'Fuel Consumption (Urban)',
+    'Engine size in Cm3': 'Engine Size (Cm3)',
+    'Battery capacity, kWh': 'Battery Capacity (kWh)',
+    'Electric range': 'Electric Range'
 }
 
-for feature, display_name in numeric_features.items():
-    if feature in df.columns:
-        if st.checkbox(f"->{display_name}"):
-            selected_value = st.selectbox(f"Pasirinkti {display_name}", sorted(df[feature].unique()))
-        else:
-            # Use the median value as the default
-            selected_value = df[feature].median()
-        input_values.append(selected_value)
-    else:
-        st.warning(f"{display_name} not found in dataset. Defaulting to 0.")
-        input_values.append(0)
+# Streamlit App
+st.title("Vehicle Price Prediction App")
+st.write("Predict vehicle prices based on various features.")
 
-# Add placeholders for excluded features to match model input size
-excluded_features_defaults = [0] * 11  # Placeholder for Insurance Validity, Alloy Wheel Size, Turning Radius, Front Tread, Rear Tread, Displacement, and other excluded features
-input_values.extend(excluded_features_defaults)
+# Dropdowns
+make = st.selectbox('Select Make', data['Make'].unique())
+filtered_models = data[data['Make'] == make]['Model'].unique()
+model_choice = st.selectbox('Select Model', filtered_models)
+year_of_make = st.selectbox(titles['First registration'], sorted(data['First registration'].unique()))
+color = st.selectbox('Color', data['Color'].unique())
+gearbox = st.selectbox('Gearbox', data['Gearbox'].unique())
+fuel_type = st.selectbox('Fuel Type', data['Fuel type'].unique())
+driven_wheels = st.selectbox('Driven Wheels', data['Driven wheels'].unique())
+number_of_seats = st.selectbox('Number of Seats', sorted(data['Number of seats'].unique()))
+damage = st.selectbox('Damage', data['Damage'].unique())
+euro_standard = st.selectbox('Euro Standard', data['Euro standard'].unique())
+pollution_tax = st.selectbox('Pollution Tax in Lithuania', data['Pollution tax in Lithuania'].unique())
 
-# Convert input values to numpy array
-input_data = np.array([input_values])
+# Date Input
+mot_expiry = st.date_input('MOT Test Expiry')
 
-# Function to fetch exchange rate
-def get_exchange_rate(from_currency="INR", to_currency="EUR"):
-    api_url = "https://v6.exchangerate-api.com/v6/c5186f953a752d1b79ef7e7f/latest/INR"
-    response = requests.get(api_url)
-    if response.status_code == 200:
-        rates = response.json().get("conversion_rates", {})
-        return rates.get(to_currency, None)
-    else:
-        st.error("Failed to fetch exchange rates.")
-        return None
+# Numerical Inputs
+engine_power = st.number_input(titles['Engine Power KW'], min_value=0)
+co2_emissions = st.number_input(titles['CO2 emisija, g/km'], min_value=0)
+mileage = st.number_input('Mileage', min_value=0)
+fuel_out_city = st.number_input(titles['Fuel consuption out-of-city l/100 km'], min_value=0.0)
+fuel_combined = st.number_input(titles['Fuel consuption combined l/100 km'], min_value=0.0)
+fuel_urban = st.number_input(titles['Fuel consuption Urban l/100 km'], min_value=0.0)
+engine_size = st.number_input(titles['Engine size in Cm3'], min_value=0)
 
-# Predict button
-if st.button('Kainos prognozė'):
-    try:
-        # Make the prediction
-        predicted_price = model.predict(input_data)[0]
-        
-        # Fetch exchange rate and convert to EUR
-        exchange_rate = get_exchange_rate()
-        if exchange_rate:
-            converted_price = predicted_price * exchange_rate
-            st.success(f"Numanoma kaina yra: ₹{predicted_price:,.2f} (≈ €{converted_price:,.2f})")
-        else:
-            st.success(f"Numanoma kaina yra: ₹{predicted_price:,.2f}")
+# Conditional Fields
+if "electricity" in fuel_type.lower():
+    battery_capacity = st.number_input(titles['Battery capacity, kWh'], min_value=0.0)
+    electric_range = st.number_input(titles['Electric range'], min_value=0.0)
 
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
+# Checkbox Inputs
+binary_features = [
+    'Rear view camera', '360 degree camera', 'Front view camera',
+    'Ventilated seats', 'Blind Spot Detection', 'Electrically adjustable steering wheel',
+    'Touch screen', 'Automated Parking', 'Electric seats with memory', 'Pneumatic suspension',
+    'Matrix headlights', 'Paddle shifters', 'HiFi audio system', 'Electric seats',
+    'Apple CarPlay / Android Auto', 'Sunroof', 'ESP', 'Traction control system',
+    'Reclining seats', 'Fog lights', 'Boot cover', 'Lane Departure Warning',
+    'Dynamic cornering lights', 'Soft close doors', 'LED headlights',
+    'Heated mirrors', 'Leather seats'
+]
+
+user_inputs = {}
+for feature in binary_features:
+    user_inputs[feature] = 1 if st.checkbox(feature) else 0
+
+# Predict Button
+if st.button('Predict Price'):
+    # Prepare input data for prediction
+    input_data = [
+        year_of_make, engine_power, user_inputs['Rear view camera'], mileage,
+        number_of_seats, user_inputs['Battery capacity, kWh'] if "electricity" in fuel_type.lower() else 0,
+        co2_emissions, pollution_tax, make, driven_wheels, model_choice,
+        user_inputs['Electrically adjustable steering wheel'], gearbox, user_inputs['360 degree camera'],
+        user_inputs['Front view camera'], color, fuel_type, mot_expiry, damage,
+        fuel_out_city, fuel_combined, fuel_urban, engine_size
+    ] + [user_inputs[feature] for feature in binary_features]
+
+    prediction = model.predict([input_data])[0]
+    st.success(f"The predicted price of the vehicle is €{prediction:.2f}")
