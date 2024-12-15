@@ -6,7 +6,7 @@ import numpy as np
 # Load the model and data
 def load_model():
     try:
-        model = joblib.load(r'.\data\tuned_gradient_boosting_model.pkl')
+        model = joblib.load('programele\data\tuned_gradient_boosting_model.pkl')
         if model is None:
             raise ValueError("The loaded model is None.")
         return model
