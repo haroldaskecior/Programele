@@ -36,8 +36,8 @@ input_features = [
 ]
 
 # Streamlit App
-st.title("Vehicle Price Prediction App")
-st.write("Predict vehicle prices based on specific features.")
+st.title("AUTOMOBILIŲ KAINOS PROGNOZAVIMO ĮRANKIS NAUDOJANTIS MAŠININĮ MOKYMĄ")
+st.write("Haroldas Kečioris PS1")
 
 # Dropdowns
 make = st.selectbox('Select Make', data['Make'].unique())
